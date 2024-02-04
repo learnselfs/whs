@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"github.com/learnselfs/wlog"
 	"net/http"
+	"strconv"
 	"testing"
 )
 
@@ -29,5 +30,63 @@ func TestBaseService(t *testing.T) {
 	if str.String() == "/123a" {
 		t.Log("ok!!!")
 	}
+	s.Stop()
+}
+
+func TestParserUrl(t *testing.T) {
+	urlTests := []struct {
+		url    string
+		result []string
+	}{
+		{"/user", []string{"user"}},
+		{"/user/admin", []string{"user", "admin"}},
+	}
+
+	for i, test := range urlTests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			result := parseUrl(test.url)
+			if !(len(result) == len(test.result)) {
+				t.Errorf("[result] %s: %d, [test.result] %s: %d)", test.result, len(test.result), result, len(result))
+			}
+		})
+	}
+}
+
+func TestRoutes(t *testing.T) {
+	r := newRoute()
+	r.RegisterRouter("/user", func(c *Content) {
+		c.ResponseWriter.Write([]byte("/user"))
+	})
+	r.RegisterRouter("/user/admin", func(c *Content) {
+		c.ResponseWriter.Write([]byte("/user/admin"))
+	})
+
+	r.Router("/user")
+	r.Router("/user/admin")
+}
+
+func TestBaseRoutes(t *testing.T) {
+	s := New("127.0.0.1", 80)
+	s.RegisterRouter("/user", func(c *Content) {
+		c.ResponseWriter.Write([]byte("/user"))
+	})
+	s.RegisterRouter("/user/admin", func(c *Content) {
+		c.ResponseWriter.Write([]byte("/user/admin"))
+	})
+
+	go func() {
+		s.Start()
+	}()
+	c := http.Client{}
+	res1, _ := c.Get("http://127.0.0.1/user/admin")
+	b1 := make([]byte, 20)
+	res1.Body.Read(b1)
+	wlog.Info.Println(string(b1))
+
+	res2, _ := c.Get("http://127.0.0.1/user")
+	b2 := make([]byte, 20)
+	res2.Body.Read(b2)
+	wlog.Info.Println(string(b2))
+
 	s.Stop()
 }

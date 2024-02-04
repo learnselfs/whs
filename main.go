@@ -11,5 +11,15 @@ import (
 
 // New function return http server
 func New(host string, port int) *Service {
-	return &Service{host: host, port: port, Server: &http.Server{Addr: fmt.Sprintf("%s:%d", host, port), ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second}}
+	s := &Service{
+		host: host,
+		port: port,
+		Server: &http.Server{
+			Addr:         fmt.Sprintf("%s:%d", host, port),
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second},
+		route: newRoute(),
+	}
+	s.Handler = s
+	return s
 }

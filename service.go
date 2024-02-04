@@ -22,18 +22,16 @@ type Service struct {
 // ServeHTTP for main processing function
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
+	handle := s.Router(c.RequestURI)
+	handle(c)
+
 	wlog.Info.Printf("%#v", c.Request)
-	c.ResponseWriter.Write([]byte(c.RequestURI))
 
 }
 
 // Start for http server
 func (s *Service) Start() {
-	err := http.ListenAndServe(s.Addr, s)
-	if err != nil {
-		wlog.Error.Println(err)
-		return
-	}
+	wlog.Info.Println(s.ListenAndServe())
 }
 
 // Stop for http server
