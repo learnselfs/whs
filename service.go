@@ -29,9 +29,6 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		NotFoundHandler(c)
 	}
-
-	wlog.Info.Printf("%#v", c.Request)
-
 }
 
 // Start for http server

@@ -6,6 +6,7 @@ package whs
 import (
 	"bytes"
 	"github.com/learnselfs/wlog"
+	"io"
 	"net/http"
 	"strconv"
 	"testing"
@@ -82,20 +83,20 @@ func serverStart() *Service {
 		c.ResponseWriter.Write([]byte("/user/" + c.param["user"] + "/info"))
 	})
 
-	//go func() {
-	s.Start()
-	//}()
+	go func() {
+		s.Start()
+	}()
 
 	return s
 }
 
-func ClientGet(url string) {
-	c := http.Client{}
+func ClientGet(t *testing.T, url string) {
+	c := &http.Client{}
 	res1, _ := c.Get("http://127.0.0.1" + url)
-	b1 := make([]byte, 20)
-	_, err := res1.Body.Read(b1)
+	b1, err := io.ReadAll(res1.Body)
 	if err != nil {
 		wlog.Error.Println(err)
+		t.Error(err)
 		return
 	}
 	wlog.Info.Println(string(b1))
@@ -119,7 +120,14 @@ func TestBaseRoutes(t *testing.T) {
 
 func TestUrlParams(t *testing.T) {
 	s := serverStart()
-	//ClientGet("/user/admin")
-	//s.Stop()
+	t.Run("name", func(t *testing.T) {
+		ClientGet(t, "/user/admins/info")
+		ClientGet(t, "/user/adminaaa/info")
+		ClientGet(t, "/users/adminaaa/info")
+		ClientGet(t, "/users/admina/nfo")
+		ClientGet(t, "/use/nfo")
+
+	})
 	s.Stop()
+	wlog.Info.Println(s)
 }

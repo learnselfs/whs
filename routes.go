@@ -4,7 +4,6 @@
 package whs
 
 import (
-	"github.com/learnselfs/wlog"
 	"strings"
 )
 
@@ -40,7 +39,6 @@ func (r *route) Router(url string) Handler {
 	var router *route
 	router = r
 	router = recursionRouter(router, urlList, r.param)
-	wlog.Debug.Printf("%#v", router)
 	if router != nil && router.isHandle {
 		return router.handler
 	}
@@ -91,14 +89,12 @@ func recursionRouter(r *route, urls []string, param map[string]string) *route {
 	if r.isAsterisk {
 		return r
 	} else if r.isHandle && r.index >= len(urls)-1 {
-		wlog.Debug.Printf("%#v", r)
 		return r
 	}
 
 	url := urls[r.index+1]
 	router, ok := r.routes[url]
 	if ok {
-		wlog.Debug.Printf("---%#v", router)
 		return recursionRouter(router, urls, param)
 	}
 	for k, v := range r.routes {
