@@ -65,7 +65,8 @@ func TestRoutes(t *testing.T) {
 	r.Router("/user/admin")
 }
 
-func TestBaseRoutes(t *testing.T) {
+func serverStart() *Service {
+
 	s := New("127.0.0.1", 80)
 	s.RegisterRouter("/user", func(c *Content) {
 		c.ResponseWriter.Write([]byte("/user"))
@@ -74,9 +75,34 @@ func TestBaseRoutes(t *testing.T) {
 		c.ResponseWriter.Write([]byte("/user/admin"))
 	})
 
-	go func() {
-		s.Start()
-	}()
+	s.RegisterRouter("/users/*", func(c *Content) {
+		c.ResponseWriter.Write([]byte("/users"))
+	})
+	s.RegisterRouter("/user/:user/info", func(c *Content) {
+		c.ResponseWriter.Write([]byte("/user/" + c.param["user"] + "/info"))
+	})
+
+	//go func() {
+	s.Start()
+	//}()
+
+	return s
+}
+
+func ClientGet(url string) {
+	c := http.Client{}
+	res1, _ := c.Get("http://127.0.0.1" + url)
+	b1 := make([]byte, 20)
+	_, err := res1.Body.Read(b1)
+	if err != nil {
+		wlog.Error.Println(err)
+		return
+	}
+	wlog.Info.Println(string(b1))
+}
+
+func TestBaseRoutes(t *testing.T) {
+	s := serverStart()
 	c := http.Client{}
 	res1, _ := c.Get("http://127.0.0.1/user/admin")
 	b1 := make([]byte, 20)
@@ -88,5 +114,12 @@ func TestBaseRoutes(t *testing.T) {
 	res2.Body.Read(b2)
 	wlog.Info.Println(string(b2))
 
+	s.Stop()
+}
+
+func TestUrlParams(t *testing.T) {
+	s := serverStart()
+	//ClientGet("/user/admin")
+	//s.Stop()
 	s.Stop()
 }

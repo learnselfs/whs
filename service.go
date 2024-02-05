@@ -23,7 +23,12 @@ type Service struct {
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
 	handle := s.Router(c.RequestURI)
-	handle(c)
+	c.param = s.route.param
+	if handle != nil {
+		handle(c)
+	} else {
+		NotFoundHandler(c)
+	}
 
 	wlog.Info.Printf("%#v", c.Request)
 

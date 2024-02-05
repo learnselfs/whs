@@ -14,11 +14,12 @@ type Content struct {
 
 	// response
 	http.ResponseWriter
+	param map[string]string
 }
 
 // NewContent returns a new Content
 func NewContent(r *http.Request, w http.ResponseWriter) *Content {
-	c := &Content{Request: r, ResponseWriter: w}
+	c := &Content{Request: r, ResponseWriter: w, param: make(map[string]string)}
 	return c
 }
 
