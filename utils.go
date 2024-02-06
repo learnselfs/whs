@@ -11,6 +11,12 @@ func parseUrl(url string) []string {
 	return rangeExcludeString(result, "")
 }
 
+func parseUrlExcludeSpecialSymbol(url string) string {
+	results := strings.Split(url, "/")
+	result := rangeExcludeString(results, "")
+	return strings.Join(result, "")
+}
+
 // doublePointerExcludeString for double pointer exclude string
 func doublePointerExcludeString(list []string, s string) []string {
 

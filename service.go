@@ -15,7 +15,7 @@ type Service struct {
 	host  string
 	port  int
 	close chan struct{}
-	*route
+	*Route
 	*http.Server
 }
 
@@ -23,7 +23,7 @@ type Service struct {
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
 	handle := s.Router(c.RequestURI)
-	c.param = s.route.param
+	c.param = s.Route.param
 	if handle != nil {
 		handle(c)
 	} else {

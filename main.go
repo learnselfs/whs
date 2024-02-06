@@ -18,7 +18,7 @@ func New(host string, port int) *Service {
 			Addr:         fmt.Sprintf("%s:%d", host, port),
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 10 * time.Second},
-		route: newRoute(),
+		Route: newRoute(),
 	}
 	s.Handler = s
 	return s

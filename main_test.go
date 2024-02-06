@@ -83,9 +83,9 @@ func serverStart() *Service {
 		c.ResponseWriter.Write([]byte("/user/" + c.param["user"] + "/info"))
 	})
 
-	go func() {
-		s.Start()
-	}()
+	//go func() {
+	//	s.Start()
+	//}()
 
 	return s
 }
@@ -130,4 +130,29 @@ func TestUrlParams(t *testing.T) {
 	})
 	s.Stop()
 	wlog.Info.Println(s)
+}
+
+func TestRouteGroup(t *testing.T) {
+	s := serverStart()
+
+	home := s.Group("/home")
+	{
+		home.RegisterRouter("/info", func(c *Content) { c.ResponseWriter.Write([]byte("/home/info")) })
+		home.RegisterRouter("/*", func(c *Content) { c.ResponseWriter.Write([]byte("/home/*")) })
+	}
+
+	admin := s.Group("admin")
+	{
+		admin.RegisterRouter("info", func(c *Content) { c.ResponseWriter.Write([]byte("/admin/info")) })
+		admin.RegisterRouter("/:info", func(c *Content) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
+	}
+	go func() {
+		s.Start()
+	}()
+
+	ClientGet(t, "/home/info")
+	ClientGet(t, "/home/info*")
+	ClientGet(t, "/admin/info")
+	ClientGet(t, "/admin/infos")
+	s.Stop()
 }
