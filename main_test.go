@@ -55,10 +55,10 @@ func TestParserUrl(t *testing.T) {
 
 func TestRoutes(t *testing.T) {
 	r := newRoute()
-	r.RegisterRouter("/user", func(c *Content) {
+	r.RegisterRouter("/user", func(c *Context) {
 		c.ResponseWriter.Write([]byte("/user"))
 	})
-	r.RegisterRouter("/user/admin", func(c *Content) {
+	r.RegisterRouter("/user/admin", func(c *Context) {
 		c.ResponseWriter.Write([]byte("/user/admin"))
 	})
 
@@ -69,17 +69,17 @@ func TestRoutes(t *testing.T) {
 func serverStart() *Service {
 
 	s := New("127.0.0.1", 80)
-	s.RegisterRouter("/user", func(c *Content) {
+	s.RegisterRouter("/user", func(c *Context) {
 		c.ResponseWriter.Write([]byte("/user"))
 	})
-	s.RegisterRouter("/user/admin", func(c *Content) {
+	s.RegisterRouter("/user/admin", func(c *Context) {
 		c.ResponseWriter.Write([]byte("/user/admin"))
 	})
 
-	s.RegisterRouter("/users/*", func(c *Content) {
+	s.RegisterRouter("/users/*", func(c *Context) {
 		c.ResponseWriter.Write([]byte("/users"))
 	})
-	s.RegisterRouter("/user/:user/info", func(c *Content) {
+	s.RegisterRouter("/user/:user/info", func(c *Context) {
 		c.ResponseWriter.Write([]byte("/user/" + c.param["user"] + "/info"))
 	})
 
@@ -90,7 +90,7 @@ func serverStart() *Service {
 	return s
 }
 
-func ClientGet(t *testing.T, url string) {
+func ClientGet(t *testing.T, url string, result string) {
 	c := &http.Client{}
 	res1, _ := c.Get("http://127.0.0.1" + url)
 	b1, err := io.ReadAll(res1.Body)
@@ -99,7 +99,11 @@ func ClientGet(t *testing.T, url string) {
 		t.Error(err)
 		return
 	}
-	wlog.Info.Println(string(b1))
+	t.Run(string(b1), func(t *testing.T) {
+		if string(b1) != result {
+			t.Errorf("\n\tExpected result: %s, \n\tActual result: %s", result, b1)
+		}
+	})
 }
 
 func TestBaseRoutes(t *testing.T) {
@@ -121,11 +125,11 @@ func TestBaseRoutes(t *testing.T) {
 func TestUrlParams(t *testing.T) {
 	s := serverStart()
 	t.Run("name", func(t *testing.T) {
-		ClientGet(t, "/user/admins/info")
-		ClientGet(t, "/user/adminaaa/info")
-		ClientGet(t, "/users/adminaaa/info")
-		ClientGet(t, "/users/admina/nfo")
-		ClientGet(t, "/use/nfo")
+		ClientGet(t, "/user/admins/info", "/user/admins/info")
+		ClientGet(t, "/user/adminaaa/info", "/user/adminaaa/info")
+		ClientGet(t, "/users/adminaaa/info", "/users/adminaa/info")
+		ClientGet(t, "/users/admina/nfo", "/users/admina/nfo")
+		ClientGet(t, "/use/nfo", "")
 
 	})
 	s.Stop()
@@ -137,22 +141,62 @@ func TestRouteGroup(t *testing.T) {
 
 	home := s.Group("/home")
 	{
-		home.RegisterRouter("/info", func(c *Content) { c.ResponseWriter.Write([]byte("/home/info")) })
-		home.RegisterRouter("/*", func(c *Content) { c.ResponseWriter.Write([]byte("/home/*")) })
+		home.RegisterRouter("/info", func(c *Context) { c.ResponseWriter.Write([]byte("/home/info")) })
+		home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
 	}
 
 	admin := s.Group("admin")
 	{
-		admin.RegisterRouter("info", func(c *Content) { c.ResponseWriter.Write([]byte("/admin/info")) })
-		admin.RegisterRouter("/:info", func(c *Content) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
+		admin.RegisterRouter("info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/info")) })
+		admin.RegisterRouter("/:info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
 	}
 	go func() {
 		s.Start()
 	}()
 
-	ClientGet(t, "/home/info")
-	ClientGet(t, "/home/info*")
-	ClientGet(t, "/admin/info")
-	ClientGet(t, "/admin/infos")
+	ClientGet(t, "/home/info", "/home/info")
+	ClientGet(t, "/home/info*", "/home/info*")
+	ClientGet(t, "/admin/info", "/admin/info")
+	ClientGet(t, "/admin/infos", "/admin/infos")
 	s.Stop()
+}
+
+func TestMiddleware(t *testing.T) {
+	s := serverStart()
+	s.UseMiddleware(func(c *Context) {
+		c.ResponseWriter.Write([]byte("1"))
+		c.Next()
+		c.ResponseWriter.Write([]byte("1"))
+	})
+	home := s.Group("/home")
+	home.UseMiddleware(func(c *Context) {
+		c.ResponseWriter.Write([]byte("2"))
+		c.Next()
+		c.ResponseWriter.Write([]byte("2"))
+	})
+	{
+		home.RegisterRouter("/info", func(c *Context) { c.ResponseWriter.Write([]byte("/home/info")) })
+		home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
+	}
+
+	admin := s.Group("admin")
+	admin.UseMiddleware(func(c *Context) {
+		c.ResponseWriter.Write([]byte("3"))
+		c.Next()
+		c.ResponseWriter.Write([]byte("3"))
+	})
+	{
+		admin.RegisterRouter("info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/info")) })
+		admin.RegisterRouter("/:info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
+	}
+	go func() {
+		s.Start()
+	}()
+
+	ClientGet(t, "/home/info", "12/home/info21")
+	ClientGet(t, "/home/info1*", "12/home/*21")
+	ClientGet(t, "/admin/info", "13/admin/info31")
+	ClientGet(t, "/admin/infos", "13/admin/infos31")
+	s.Stop()
+
 }

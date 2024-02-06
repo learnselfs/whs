@@ -22,10 +22,10 @@ type Service struct {
 // ServeHTTP for main processing function
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
-	handle := s.Router(c.RequestURI)
+	c.middlewares = s.Router(c.RequestURI)
 	c.param = s.Route.param
-	if handle != nil {
-		handle(c)
+	if len(c.middlewares) > 0 {
+		c.Next()
 	} else {
 		NotFoundHandler(c)
 	}

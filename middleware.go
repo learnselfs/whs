@@ -3,7 +3,7 @@
 // @Desc
 package whs
 
-func NotFoundHandler(c *Content) {
+func NotFoundHandler(c *Context) {
 	_, err := c.ResponseWriter.Write([]byte("not found 404"))
 	if err != nil {
 		return
