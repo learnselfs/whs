@@ -200,3 +200,33 @@ func TestMiddleware(t *testing.T) {
 	s.Stop()
 
 }
+
+func TestFileServer(t *testing.T) {
+	s := serverStart()
+	//s.UseMiddleware(func(c *Context) {
+	//	c.ResponseWriter.Write([]byte("1"))
+	//	c.Next()
+	//	c.ResponseWriter.Write([]byte("1"))
+	//})
+	home := s.Group("/home")
+	home.UseMiddleware(func(c *Context) {
+		c.ResponseWriter.Write([]byte("2"))
+		c.Next()
+		c.ResponseWriter.Write([]byte("2"))
+	})
+	{
+		home.RegisterRouter("/info", func(c *Context) { c.ResponseWriter.Write([]byte("/home/info")) })
+		home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
+	}
+	s.Static("/.gitee")
+	go func() {
+		s.Start()
+	}()
+
+	client := &http.Client{}
+	res, _ := client.Get("http://127.0.0.1/.gitee/PULL_REQUEST_TEMPLATE.zh-CN.md")
+	if res.StatusCode != 200 {
+		t.Errorf("test static failed")
+	}
+	s.Stop()
+}

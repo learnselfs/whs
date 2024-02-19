@@ -4,6 +4,8 @@
 package whs
 
 import (
+	"encoding/json"
+	"html/template"
 	"net/http"
 )
 
@@ -17,6 +19,9 @@ type Context struct {
 	param       map[string]string
 	middlewares []Handler
 	index       int
+
+	// html templates
+	*template.Template
 }
 
 // NewContent returns a new Context
@@ -33,4 +38,32 @@ func (c *Context) parse() {
 func (c *Context) Next() {
 	c.index++
 	c.middlewares[c.index](c)
+}
+
+func (c *Context) setState(state int) {
+	c.ResponseWriter.WriteHeader(state)
+}
+
+func (c *Context) setHeader(key string, value string) {
+	c.ResponseWriter.Header().Set(key, value)
+}
+
+func (c *Context) Html(state int, byte []byte) {
+	c.setHeader("Content-Type", "text/html")
+	c.setState(state)
+
+	_, err := c.ResponseWriter.Write(byte)
+	if err != nil {
+		return
+	}
+}
+
+func (c *Context) Json(state int, i any) {
+	c.setHeader("Content-Type", "application/json")
+	c.setState(state)
+	j := json.NewEncoder(c.ResponseWriter)
+	err := j.Encode(i)
+	if err != nil {
+		return
+	}
 }
