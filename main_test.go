@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strconv"
 	"testing"
+	"text/template"
+	"time"
 )
 
 func TestBaseService(t *testing.T) {
@@ -203,11 +205,6 @@ func TestMiddleware(t *testing.T) {
 
 func TestFileServer(t *testing.T) {
 	s := serverStart()
-	//s.UseMiddleware(func(c *Context) {
-	//	c.ResponseWriter.Write([]byte("1"))
-	//	c.Next()
-	//	c.ResponseWriter.Write([]byte("1"))
-	//})
 	home := s.Group("/home")
 	home.UseMiddleware(func(c *Context) {
 		c.ResponseWriter.Write([]byte("2"))
@@ -222,6 +219,38 @@ func TestFileServer(t *testing.T) {
 	go func() {
 		s.Start()
 	}()
+
+	client := &http.Client{}
+	res, _ := client.Get("http://127.0.0.1/.gitee/PULL_REQUEST_TEMPLATE.zh-CN.md")
+	if res.StatusCode != 200 {
+		t.Errorf("test static failed")
+	}
+	s.Stop()
+}
+
+func FormatTime(t time.Time) string {
+	return t.AddDate(100, 100, 1).Format(time.DateTime)
+}
+func TestTemplate(t *testing.T) {
+	s := serverStart()
+	s.Static("/.gitee")
+	s.Func(template.FuncMap{"FormatTime": FormatTime})
+	s.Template("*gitee/*")
+
+	home := s.Group("/home")
+	home.UseMiddleware(func(c *Context) {
+		//c.ResponseWriter.Write([]byte("2"))
+		c.Next()
+		//c.ResponseWriter.Write([]byte("2"))
+	})
+	{
+		home.RegisterRouter("/info", func(c *Context) {
+			c.Html(200, "base.tmpl", map[string]any{"name": "小明", "gender": true, "age": 18, "time": time.Now()})
+		})
+		home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
+	}
+
+	s.Start()
 
 	client := &http.Client{}
 	res, _ := client.Get("http://127.0.0.1/.gitee/PULL_REQUEST_TEMPLATE.zh-CN.md")
