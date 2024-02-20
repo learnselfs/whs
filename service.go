@@ -18,15 +18,16 @@ type Service struct {
 	close chan struct{}
 	*Route
 	*http.Server
-	*template.Template
+	template *template.Template
 }
 
 // ServeHTTP for main processing function
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
-	c.Template = s.Template // http template
+	c.template = s.template // http template
 	c.middlewares = s.Router(c.RequestURI)
 	c.param = s.Route.param // route parameters
+	c.template = s.template
 	if len(c.middlewares) > 0 {
 		c.Next()
 	} else {
@@ -52,7 +53,14 @@ func (s *Service) Stop() {
 }
 
 func (s *Service) Static(webPah string) {
-	s.Template = template.New("main")
 	h := fileServer(webPah)
 	s.RegisterRouter(webPah, h)
+}
+
+func (s *Service) Template(webPah string) {
+	s.template = template.Must(s.template.ParseGlob(webPah))
+}
+
+func (s *Service) Func(fun template.FuncMap) {
+	s.template = s.template.Funcs(fun)
 }

@@ -4,17 +4,10 @@
 package whs
 
 import (
-	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
 )
-
-var htmlFile string
-
-func Html(webPath string) (*template.Template, error) {
-	return template.New(webPath).ParseFiles(htmlFile)
-}
 
 func fileServer(webPath string) Handler {
 	wd, _ := os.Getwd()

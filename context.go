@@ -21,7 +21,7 @@ type Context struct {
 	index       int
 
 	// html templates
-	*template.Template
+	template *template.Template
 }
 
 // NewContent returns a new Context
@@ -48,11 +48,10 @@ func (c *Context) setHeader(key string, value string) {
 	c.ResponseWriter.Header().Set(key, value)
 }
 
-func (c *Context) Html(state int, byte []byte) {
+func (c *Context) Html(state int, tmpl string, data map[string]any) {
 	c.setHeader("Content-Type", "text/html")
 	c.setState(state)
-
-	_, err := c.ResponseWriter.Write(byte)
+	err := c.template.ExecuteTemplate(c.ResponseWriter, tmpl, data)
 	if err != nil {
 		return
 	}

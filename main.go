@@ -5,6 +5,7 @@ package whs
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"time"
 )
@@ -18,7 +19,8 @@ func New(host string, port int) *Service {
 			Addr:         fmt.Sprintf("%s:%d", host, port),
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 10 * time.Second},
-		Route: newRoute(),
+		Route:    newRoute(),
+		template: template.New("whs"),
 	}
 	s.Handler = s
 	return s
