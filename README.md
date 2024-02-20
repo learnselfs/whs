@@ -1,19 +1,18 @@
 # whs
 
-#### 介绍
+## 介绍
 web http service
 
-#### 安装教程
+## 安装教程
 `go get github.com/learnselfs/whs`
 
-#### 使用说明
-1. 初始化
+## 使用说明
+- 初始化
 
 ```go
 s := New("127.0.0.1", 80)
 ```
 
-2. 路由
 - 路由
 ```go
 s.RegisterRouter("/user", func(c *Context) {
@@ -21,6 +20,7 @@ s.RegisterRouter("/user", func(c *Context) {
 }
 ```
 - 路由组
+
 ```go
 home := s.Group("/home")
 {
@@ -30,7 +30,9 @@ home := s.Group("/home")
 
 
 ```
-3.  中间件
+- 参数获取
+
+- 中间件
 
 ```go
 home.UseMiddleware(func(c *Context) {
@@ -39,11 +41,11 @@ home.UseMiddleware(func(c *Context) {
     c.ResponseWriter.Write([]byte("2"))
 })
 ```
-4. 启动
+- 启动
 ```go
 s.Start()
 ```
-5. 停止
+- 停止
 ```go
 s.Stop()
 ```
