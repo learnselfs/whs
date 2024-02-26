@@ -5,7 +5,6 @@ package whs
 
 import (
 	"bytes"
-	"github.com/learnselfs/wlog"
 	"io"
 	"net/http"
 	"strconv"
@@ -29,7 +28,7 @@ func TestBaseService(t *testing.T) {
 	response.Body.Read(url)
 	var str bytes.Buffer
 	str.Write(url)
-	wlog.Info.Println(str)
+	logger.Info(str.String())
 	if str.String() == "/123a" {
 		t.Log("ok!!!")
 	}
@@ -97,7 +96,7 @@ func ClientGet(t *testing.T, url string, result string) {
 	res1, _ := c.Get("http://127.0.0.1" + url)
 	b1, err := io.ReadAll(res1.Body)
 	if err != nil {
-		wlog.Error.Println(err)
+		logger.Error(err.Error())
 		t.Error(err)
 		return
 	}
@@ -114,12 +113,12 @@ func TestBaseRoutes(t *testing.T) {
 	res1, _ := c.Get("http://127.0.0.1/user/admin")
 	b1 := make([]byte, 20)
 	res1.Body.Read(b1)
-	wlog.Info.Println(string(b1))
+	logger.Info(string(b1))
 
 	res2, _ := c.Get("http://127.0.0.1/user")
 	b2 := make([]byte, 20)
 	res2.Body.Read(b2)
-	wlog.Info.Println(string(b2))
+	logger.Info(string(b2))
 
 	s.Stop()
 }
@@ -135,7 +134,6 @@ func TestUrlParams(t *testing.T) {
 
 	})
 	s.Stop()
-	wlog.Info.Println(s)
 }
 
 func TestRouteGroup(t *testing.T) {
