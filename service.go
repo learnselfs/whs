@@ -5,9 +5,9 @@ package whs
 
 import (
 	"context"
-	"github.com/learnselfs/wlog"
 	"html/template"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -37,7 +37,8 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Start for http server
 func (s *Service) Start() {
-	wlog.Info.Println(s.ListenAndServe())
+	logger.Info("Listening on " + s.host + ":" + strconv.Itoa(s.port))
+	s.ListenAndServe()
 }
 
 // Stop for http server
