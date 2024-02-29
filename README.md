@@ -1,37 +1,124 @@
-# whs
 
-#### 介绍
-web http service
+<!-- PROJECT SHIELDS -->
 
-#### 软件架构
-软件架构说明
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
+<!-- PROJECT LOGO -->
+<br />
+   
+<p align="center">
+  <a href="https://github.com/learnselfs/wlog/">
+    <img src="logo.png" alt="Logo"  height="80">
+  </a>
+
+<h3 align="center"></h3>
+  <p align="center">
+wlog is a structured logger for Go (golang), completely API compatible with the standard library logger.
+    <br />
+    <a href="https://github.com//learnselfs/wlog"><strong> markdown »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com//learnselfs/wlog">Demo</a>
+    ·
+    <a href="https://github.com//learnselfs/wlog/issues">Bug</a>
+    ·
+    <a href="https://github.com//learnselfs/wlog/issues">Issues</a>
+  </p>
+
+</p>
+
+English | [中文](./README_ch.md)
+### Guide
+1. create server 
+```go
+s := New("127.0.0.1", 80)
+```
+2. routes
+````go
+s.RegisterRouter("/user", func(c *Context) {
+c.ResponseWriter.Write([]byte("/user"))
+}
+````
+3. route group
+```go
+home := s.Group("/home")
+{
+    home.RegisterRouter("/index", func(c *Context) { c.ResponseWriter.Write([]byte("/home/index")) })
+}}
+)
+```
+4. middleware
+```go
+home.UseMiddleware(func(c *Context) {
+c.ResponseWriter.Write([]byte("2"))
+c.Next()
+c.ResponseWriter.Write([]byte("2"))
+})
+```
+5. template
+```go
+s.Static("static/", "/static")
+s.Func(template.FuncMap{"FormatTime": FormatTime})
+s.Template("template/*")```
+6. start and stop 
+```text
+s.Start()
+s.stop()
+```
+###### Pre development Configuration Requirements
+
+1. go version 1.21.1
+
+###### **Installation**
+
+1. `go get github.com/learnselfs/wlog`
+   [github.com/learnselfs/wlog](https://pkg.go.dev/github.com/learnselfs/wlog)
+
+### Contributor
+Please read **CONTABUTING.md** to find out the developers who have contributed to this project.
 
 
-#### 安装教程
+#### Open Source Projects
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+Contributing makes the open source community an excellent place to learn, motivate, and create.
+Any contribution you make is greatly appreciated.
 
 
-#### 特技
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+### License
+
+This project has signed an Apache license, please refer to for details.
+[LICENSE](https://github.com/learnselfs/wlog/blob/master/LICENSE)
+
+### Thanks
+
+
+- [gin](https://github.com/gin-gonic/gin)
+- [Best_README_template](https://github.com/shaojintian/Best_README_template)
+- [Choose an Open Source License](https://choosealicense.com)
+- [GitHub Pages](https://pages.github.com)
+
+<!-- links -->
+[your-project-path]:/learnselfs/wlog
+[contributors-shield]: https://img.shields.io/github/contributors/learnselfs/wlog.svg?style=flat-square
+[contributors-url]: https://github.com//learnselfs/wlog/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks//learnselfs/wlog.svg?style=flat-square
+[forks-url]: https://github.com/learnselfs/wlog/network/members
+[stars-shield]: https://img.shields.io/github/stars//learnselfs/wlog.svg?style=flat-square
+[stars-url]: https://github.com//learnselfs/wlog/stargazers
+[issues-shield]: https://img.shields.io/github/issues/learnselfs/wlog.svg?style=flat-square
+[issues-url]: https://img.shields.io/github/issues//learnselfs/wlog.svg
+[license-shield]: https://img.shields.io/github/license//learnselfs/wlog.svg?style=flat-square
+[license-url]: https://github.com/learnselfs/wlog/blob/master/LICENSE
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/shaojintian
