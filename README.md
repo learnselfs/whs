@@ -18,7 +18,7 @@
 
 <h3 align="center"></h3>
   <p align="center">
-wlog is a structured logger for Go (golang), completely API compatible with the standard library logger.
+web http(s) service 
     <br />
     <a href="https://github.com//learnselfs/wlog"><strong> markdown »</strong></a>
     <br />
