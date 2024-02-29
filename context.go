@@ -19,7 +19,7 @@ type Context struct {
 	param       map[string]string
 	middlewares []Handler
 	index       int
-
+	state       int
 	// html templates
 	template *template.Template
 }
@@ -41,6 +41,7 @@ func (c *Context) Next() {
 }
 
 func (c *Context) setState(state int) {
+	c.state = state
 	c.ResponseWriter.WriteHeader(state)
 }
 

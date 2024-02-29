@@ -5,6 +5,7 @@ package whs
 
 import (
 	"context"
+	"github.com/learnselfs/wlog"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -28,6 +29,8 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c.middlewares = s.Router(c.RequestURI)
 	c.param = s.Route.param // route parameters
 	c.template = s.template
+	// logger
+
 	if len(c.middlewares) > 0 {
 		c.Next()
 	} else {
@@ -37,7 +40,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Start for http server
 func (s *Service) Start() {
-	logger.Info("Listening on " + s.host + ":" + strconv.Itoa(s.port))
+	wlog.Info("Listening on " + s.host + ":" + strconv.Itoa(s.port))
 	s.ListenAndServe()
 }
 
@@ -53,9 +56,9 @@ func (s *Service) Stop() {
 
 }
 
-func (s *Service) Static(webPah string) {
-	h := fileServer(webPah)
-	s.RegisterRouter(webPah, h)
+func (s *Service) Static(url, path string) {
+	h := fileServer(path)
+	s.RegisterRouter(url, h)
 }
 
 func (s *Service) Template(webPah string) {
@@ -64,4 +67,8 @@ func (s *Service) Template(webPah string) {
 
 func (s *Service) Func(fun template.FuncMap) {
 	s.template = s.template.Funcs(fun)
+}
+
+func (s *Service) preloadMiddleware() {
+	s.UseMiddleware(accessLogHandler)
 }

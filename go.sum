@@ -2,3 +2,13 @@ github.com/learnselfs/wlog v1.0.0 h1:X7du3TP8t33l0PJpOuN/fVA8nzJMem3AjsgtENedRqI
 github.com/learnselfs/wlog v1.0.0/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
 github.com/learnselfs/wlog v1.1.0 h1:cf4gotkhY5iUD8C4lzy35nF+OmBj5Gs6bosttzzgGqM=
 github.com/learnselfs/wlog v1.1.0/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.2 h1:01YCj283RjT8WjQ66NovpxQbvJo+PpiUmLKLo19G3iI=
+github.com/learnselfs/wlog v1.2.2/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.3 h1:zAcL0OqMun6dZMqN3B95qFb46Gv4fukU2ALd0KbDF98=
+github.com/learnselfs/wlog v1.2.3/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.4 h1:FZJBXAzRKJxdk8sgBFlOGUkKeqJMH4iIZA9z12Q8D1A=
+github.com/learnselfs/wlog v1.2.4/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.5 h1:y1Q3sw0/Pmxt/6o7o2NvbYvqTq6N79/NR/NIsgwheHs=
+github.com/learnselfs/wlog v1.2.5/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.6 h1:gV9p75S31657/hk7Gzu3aH/5VdYPHRHxW6IDkzdH5gA=
+github.com/learnselfs/wlog v1.2.6/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
