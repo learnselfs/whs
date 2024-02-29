@@ -17,7 +17,7 @@
 
 <h3 align="center"></h3>
   <p align="center">
-whs是Go（golang）的结构化记录器，与标准库记录器完全兼容API。
+web http(s) service
     <br />
     <a href="https://github.com//learnselfs/whs"><strong>探索本项目的文档 »</strong></a>
     <br />
