@@ -5,14 +5,9 @@ package whs
 
 import (
 	"fmt"
-	"github.com/learnselfs/wlog"
 	"html/template"
 	"net/http"
 	"time"
-)
-
-var (
-	logger *wlog.Log
 )
 
 // New function return http server
@@ -27,7 +22,7 @@ func New(host string, port int) *Service {
 		Route:    newRoute(),
 		template: template.New("whs"),
 	}
-	logger = wlog.New()
 	s.Handler = s
+	s.preloadMiddleware()
 	return s
 }

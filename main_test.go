@@ -5,6 +5,7 @@ package whs
 
 import (
 	"bytes"
+	"github.com/learnselfs/wlog"
 	"io"
 	"net/http"
 	"strconv"
@@ -28,7 +29,7 @@ func TestBaseService(t *testing.T) {
 	response.Body.Read(url)
 	var str bytes.Buffer
 	str.Write(url)
-	logger.Info(str.String())
+	wlog.Info(str.String())
 	if str.String() == "/123a" {
 		t.Log("ok!!!")
 	}
@@ -96,7 +97,7 @@ func ClientGet(t *testing.T, url string, result string) {
 	res1, _ := c.Get("http://127.0.0.1" + url)
 	b1, err := io.ReadAll(res1.Body)
 	if err != nil {
-		logger.Error(err.Error())
+		wlog.Error(err.Error())
 		t.Error(err)
 		return
 	}
@@ -113,12 +114,12 @@ func TestBaseRoutes(t *testing.T) {
 	res1, _ := c.Get("http://127.0.0.1/user/admin")
 	b1 := make([]byte, 20)
 	res1.Body.Read(b1)
-	logger.Info(string(b1))
+	wlog.Info(string(b1))
 
 	res2, _ := c.Get("http://127.0.0.1/user")
 	b2 := make([]byte, 20)
 	res2.Body.Read(b2)
-	logger.Info(string(b2))
+	wlog.Info(string(b2))
 
 	s.Stop()
 }
@@ -189,9 +190,9 @@ func TestMiddleware(t *testing.T) {
 		admin.RegisterRouter("info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/info")) })
 		admin.RegisterRouter("/:info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
 	}
-	go func() {
-		s.Start()
-	}()
+	//go func() {
+	s.Start()
+	//}()
 
 	ClientGet(t, "/home/info", "12/home/info21")
 	ClientGet(t, "/home/info1*", "12/home/*21")
@@ -213,7 +214,7 @@ func TestFileServer(t *testing.T) {
 		home.RegisterRouter("/info", func(c *Context) { c.ResponseWriter.Write([]byte("/home/info")) })
 		home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
 	}
-	s.Static("/.gitee")
+	s.Static("static", "/.gitee")
 	go func() {
 		s.Start()
 	}()
@@ -231,11 +232,11 @@ func FormatTime(t time.Time) string {
 }
 func TestTemplate(t *testing.T) {
 	s := serverStart()
-	s.Static("/.gitee")
+	s.Static("static/", "/.gitee")
 	s.Func(template.FuncMap{"FormatTime": FormatTime})
 	s.Template("*gitee/*")
 
-	home := s.Group("/home")
+	home := s.Group("home/")
 	home.UseMiddleware(func(c *Context) {
 		//c.ResponseWriter.Write([]byte("2"))
 		c.Next()
