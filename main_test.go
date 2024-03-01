@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strconv"
 	"testing"
-	"text/template"
 	"time"
 )
 
@@ -232,9 +231,9 @@ func FormatTime(t time.Time) string {
 }
 func TestTemplate(t *testing.T) {
 	s := serverStart()
-	s.Static("static/", "/.gitee")
-	s.Func(template.FuncMap{"FormatTime": FormatTime})
-	s.Template("*gitee/*")
+	s.Static("/static/", "./.gitee/temp")
+	//s.Func(template.FuncMap{"FormatTime": FormatTime})
+	//s.Template("*gitee/*")
 
 	home := s.Group("home/")
 	home.UseMiddleware(func(c *Context) {
@@ -242,12 +241,12 @@ func TestTemplate(t *testing.T) {
 		c.Next()
 		//c.ResponseWriter.Write([]byte("2"))
 	})
-	{
-		home.RegisterRouter("/info", func(c *Context) {
-			c.Html(200, "base.tmpl", map[string]any{"name": "小明", "gender": true, "age": 18, "time": time.Now()})
-		})
-		home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
-	}
+	//{
+	//	home.RegisterRouter("/info", func(c *Context) {
+	//		c.Html(200, "base.tmpl", map[string]any{"name": "小明", "gender": true, "age": 18, "time": time.Now()})
+	//	})
+	//	home.RegisterRouter("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
+	//}
 
 	s.Start()
 

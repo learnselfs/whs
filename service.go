@@ -57,8 +57,8 @@ func (s *Service) Stop() {
 }
 
 func (s *Service) Static(url, path string) {
-	h := fileServer(path)
-	s.RegisterRouter(url, h)
+	h := fileServer(url, path)
+	s.RegisterRouter(url+"*", h)
 }
 
 func (s *Service) Template(webPah string) {

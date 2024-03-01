@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 )
 
-func fileServer(webPath string) Handler {
+func fileServer(url, Path string) Handler {
 	wd, _ := os.Getwd()
-	path := filepath.Join(wd, webPath)
-	h := http.StripPrefix(webPath, http.FileServer(http.Dir(path)))
+	path := filepath.Join(wd, Path)
+	h := http.StripPrefix(url, http.FileServer(http.Dir(path)))
 	return func(c *Context) {
 		h.ServeHTTP(c.ResponseWriter, c.Request)
 	}
