@@ -9,18 +9,17 @@ var (
 	accessLog *wlog.Log
 )
 
-const ()
-
-type ()
-
 func init() {
 	// logger
-	accessLog = wlog.New()
-	accessLog.SetLevel(wlog.PanicLevel)
+	accessLog = createLog(accessLog, wlog.InfoLevel, map[string]any{"type": "access"})
+}
 
-	// accessLog
-
-	access := make(wlog.Fields)
-	access["type"] = "access"
-	accessLog.WithFields(access)
+func createLog(log *wlog.Log, level wlog.Level, kv map[string]any) *wlog.Log {
+	log = wlog.New()
+	fields := make(wlog.Fields)
+	for k, v := range kv {
+		fields[k] = v
+	}
+	log.WithFields(fields)
+	return log
 }
