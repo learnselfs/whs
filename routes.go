@@ -52,6 +52,7 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 			r.isHandle = true
 			r.middlewares = append(r.middlewares, r.handler)
 		}
+
 		return
 	}
 	var isColon bool
