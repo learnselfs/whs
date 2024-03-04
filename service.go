@@ -65,6 +65,10 @@ func (s *Service) Template(webPah string) {
 	s.template = template.Must(s.template.ParseGlob(webPah))
 }
 
+func (s *Service) TemplateDelim(left, right, webPah string) {
+	s.template = template.Must(s.template.Delims(left, right).ParseGlob(webPah))
+}
+
 func (s *Service) Func(fun template.FuncMap) {
 	s.template = s.template.Funcs(fun)
 }
