@@ -32,3 +32,9 @@ func rangeExcludeString(list []string, s string) []string {
 	}
 	return result
 }
+
+type Message struct {
+	Code int    `json:"code"`
+	Data any    `json:"data"`
+	Msg  string `json:"msg"`
+}

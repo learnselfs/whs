@@ -58,11 +58,15 @@ func (c *Context) Html(state int, tmpl string, data map[string]any) {
 	}
 }
 
-func (c *Context) Json(state int, i any) {
+func (c *Context) Json(state int, data any, msg string) {
 	c.setHeader("Content-Type", "application/json")
 	c.setState(state)
 	j := json.NewEncoder(c.ResponseWriter)
-	err := j.Encode(i)
+	m := new(Message)
+	m.Code = state
+	m.Data = data
+	m.Msg = msg
+	err := j.Encode(m)
 	if err != nil {
 		return
 	}

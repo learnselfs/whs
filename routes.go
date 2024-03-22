@@ -14,6 +14,8 @@ type Route struct {
 	routes      map[string]*Route // routes
 	index       int               // index of Route
 	prefix      string            // prefix is the Route url
+	pattern     string            // prefix is the Route url
+	method      string            // method
 	handler     Handler           // handler is processing the Route
 	isHandle    bool              // isHandle
 	isAsterisk  bool              // isAsterisk matching
@@ -29,30 +31,49 @@ func newRoute() *Route {
 }
 
 // RegisterRouter for add router
-func (r *Route) RegisterRouter(url string, handler Handler) {
+func (r *Route) RegisterRouter(method, url string, handler Handler) {
 	urlList := parseUrl(url)
-	recursionRegisterRouter(r, 0, urlList, handler)
+	recursionRegisterRouter(r, 0, urlList, handler, method)
 }
 
-func (r *Route) Router(url string) []Handler {
+func (r *Route) GET(url string, handler Handler) {
+	r.RegisterRouter("GET", url, handler)
+}
+
+func (r *Route) POST(url string, handler Handler) {
+	r.RegisterRouter("POST", url, handler)
+}
+
+func (r *Route) DELETE(url string, handler Handler) {
+	r.RegisterRouter("DELETE", url, handler)
+}
+func (r *Route) PUT(url string, handler Handler) {
+	r.RegisterRouter("PUT", url, handler)
+}
+func (r *Route) Router(url string) *Route {
 	urlList := parseUrl(url)
 	var router *Route
 	router = r
 	router = recursionRouter(router, urlList, r.param)
 	if router != nil && router.isHandle {
-		return router.middlewares
+		return router
 	}
 	return nil
 }
 
-func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler) {
+func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler, method string) {
 	if r.isAsterisk || count >= len(urls) {
 		r.handler = handler
 		if handler != nil {
 			r.isHandle = true
+			r.method = method
 			r.middlewares = append(r.middlewares, r.handler)
+			p := strings.Join(urls, "/")
+			p = r.pattern + "/" + p
+			pattern = append(pattern, p)
+		} else {
+			r.pattern = strings.Join(urls, "/")
 		}
-
 		return
 	}
 	var isColon bool
@@ -76,13 +97,14 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 		router = newRoute()
 		r.routes[tmpUrl] = router
 	}
+	router.pattern = r.pattern
 	router.index = index
 	router.prefix = url
 	router.isColon = isColon
 	router.isAsterisk = isAsterisk
 
 	router.middlewares = append(router.middlewares, r.middlewares...)
-	recursionRegisterRouter(router, count+1, urls, handler)
+	recursionRegisterRouter(router, count+1, urls, handler, method)
 
 }
 
@@ -111,7 +133,7 @@ func recursionRouter(r *Route, urls []string, param map[string]string) *Route {
 // Group route
 func (r *Route) Group(prefix string) *Route {
 	prefix = parseUrlExcludeSpecialSymbol(prefix)
-	r.RegisterRouter(prefix, nil)
+	r.RegisterRouter("", prefix, nil)
 	return r.routes[prefix]
 }
 

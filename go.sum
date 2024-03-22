@@ -18,3 +18,7 @@ github.com/learnselfs/wlog v1.2.9 h1:2kHH7jvpXNCfSLiX/gn7mZUCXmo1Omq7LXmV6J282+Q
 github.com/learnselfs/wlog v1.2.9/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
 github.com/learnselfs/wlog v1.2.10 h1:Ag12byU0bms55TU7rhQhPjUg0pO+efDQbIPIBL/qaHI=
 github.com/learnselfs/wlog v1.2.10/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.11 h1:0Knm2wwZLlmHRvY5afGNx8fs8+vtYG7C1Iar4l0+rZw=
+github.com/learnselfs/wlog v1.2.11/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=
+github.com/learnselfs/wlog v1.2.12 h1:cTa9LFqyt/wtx5OQkRFCVbzYEGO29IHrOTd/mZRDU5U=
+github.com/learnselfs/wlog v1.2.12/go.mod h1:qHPHf/13RcoLDerESPnnXXTBTmpNVcmQjTcox+w6l3M=

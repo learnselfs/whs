@@ -5,10 +5,10 @@ package whs
 
 import (
 	"context"
+	"fmt"
 	"github.com/learnselfs/wlog"
 	"html/template"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -26,12 +26,13 @@ type Service struct {
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
 	c.template = s.template // http template
-	c.middlewares = s.Router(c.RequestURI)
+	route := s.Router(c.RequestURI)
+	c.middlewares = route.middlewares
 	c.param = s.Route.param // route parameters
 	c.template = s.template
 	// logger
 
-	if len(c.middlewares) > 0 {
+	if len(c.middlewares) > 0 && c.Request.Method == route.method {
 		c.Next()
 	} else {
 		NotFoundHandler(c)
@@ -40,7 +41,12 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Start for http server
 func (s *Service) Start() {
-	wlog.Info("Listening on " + s.host + ":" + strconv.Itoa(s.port))
+	wlog.Infof("Listening on %s:%d", s.host, s.port)
+	var urls string
+	for _, url := range pattern {
+		urls = fmt.Sprintf("%s\n\t\x1b[1;36m%s\x1b[0m", urls, url)
+	}
+	wlog.Infoln(urls)
 	s.ListenAndServe()
 }
 
@@ -48,17 +54,15 @@ func (s *Service) Start() {
 func (s *Service) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
-
 	err := s.Shutdown(ctx)
 	if err != nil {
 		return
 	}
-
 }
 
 func (s *Service) Static(url, path string) {
 	h := fileServer(url, path)
-	s.RegisterRouter(url+"*", h)
+	s.RegisterRouter("GET", url+"/"+"*", h)
 }
 
 func (s *Service) Template(webPah string) {

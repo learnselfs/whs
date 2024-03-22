@@ -3,10 +3,14 @@
 // @Desc
 package whs
 
-import "github.com/learnselfs/wlog"
+import (
+	"github.com/learnselfs/wlog"
+)
 
 var (
 	accessLog *wlog.Log
+	// pattern
+	pattern []string
 )
 
 func init() {
