@@ -28,8 +28,8 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c.template = s.template // http template
 	route := s.Router(r.Method, c.RequestURI)
 
-	if route != nil && len(route.handlers) > 0 && c.Request.Method == route.method {
-		c.middlewares = route.handlers
+	if route != nil && len(route.handlers) > 0 {
+		c.middlewares = route.handlers[c.Method]
 		c.param = s.Route.param // route parameters
 		c.template = s.template
 		c.Next()

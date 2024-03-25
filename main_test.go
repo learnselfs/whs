@@ -91,9 +91,18 @@ func serverStart() *Service {
 	return s
 }
 
-func ClientGet(t *testing.T, url string, result string) {
+func ClientGet(t *testing.T, url string, result string, method ...string) {
 	c := &http.Client{}
-	res1, _ := c.Get("http://127.0.0.1" + url)
+	var res1 *http.Response
+	if len(method) == 0 {
+		method = []string{"GET"}
+	}
+	switch method[0] {
+	case "POST":
+		res1, _ = c.Post("http://127.0.0.1"+url, "application/json", nil)
+	default:
+		res1, _ = c.Get("http://127.0.0.1" + url)
+	}
 	b1, err := io.ReadAll(res1.Body)
 	if err != nil {
 		wlog.Error(err.Error())
@@ -151,6 +160,7 @@ func TestRouteGroup(t *testing.T) {
 	{
 		admin.GET("info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/info")) })
 		admin.GET("/:info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
+		admin.POST("/:info", func(c *Context) { c.ResponseWriter.Write([]byte("post/admin/" + c.param["info"])) })
 	}
 	go func() {
 		s.Start()
@@ -160,6 +170,7 @@ func TestRouteGroup(t *testing.T) {
 	ClientGet(t, "/home/info*", "/home/*")
 	ClientGet(t, "/admin/info", "/admin/info")
 	ClientGet(t, "/admin/infos", "/admin/infos")
+	ClientGet(t, "/admin/infos00", "/admin/infos", "POST")
 	s.Stop()
 }
 func middle(count string) Handler {

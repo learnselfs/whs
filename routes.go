@@ -22,12 +22,12 @@ type Route struct {
 	isColon     bool              // isColon matching
 	param       map[string]string // params
 	middlewares []Handler
-	handlers    []Handler
+	handlers    map[string][]Handler
 }
 
 // newRoute for return Route
 func newRoute() *Route {
-	r := &Route{index: -1, routes: make(map[string]*Route), param: make(map[string]string), middlewares: make([]Handler, 0)}
+	r := &Route{index: -1, routes: make(map[string]*Route), param: make(map[string]string), middlewares: make([]Handler, 0), handlers: make(map[string][]Handler)}
 	return r
 }
 
@@ -67,8 +67,7 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 		r.handler = handler
 		if handler != nil {
 			r.isHandle = true
-			r.method = method
-			r.handlers = append(r.middlewares, r.handler)
+			r.handlers[method] = append(r.middlewares, r.handler)
 			p := strings.Join(urls, "/")
 			p = r.pattern + "/" + p
 			pattern = append(pattern, p)
@@ -83,7 +82,7 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 	index++
 
 	url := urls[count]
-	tmpUrl := url + "-" + method
+	tmpUrl := url
 	if strings.HasPrefix(url, `:`) {
 		url = url[1:]
 		isColon = true
@@ -115,7 +114,7 @@ func recursionRouter(r *Route, urls []string, param map[string]string, method st
 	}
 
 	url := urls[r.index+1]
-	tempUrl := url + "-" + method
+	tempUrl := url
 	router, ok := r.routes[tempUrl]
 	if ok {
 		return recursionRouter(router, urls, param, method)
@@ -136,7 +135,7 @@ func recursionRouter(r *Route, urls []string, param map[string]string, method st
 func (r *Route) Group(prefix string) *Route {
 	prefix = parseUrlExcludeSpecialSymbol(prefix)
 	r.GET(prefix, nil)
-	return r.routes[prefix+"-"+"GET"]
+	return r.routes[prefix]
 }
 
 // UseMiddleware complete
