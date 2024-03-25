@@ -22,6 +22,7 @@ type Route struct {
 	isColon     bool              // isColon matching
 	param       map[string]string // params
 	middlewares []Handler
+	handlers    []Handler
 }
 
 // newRoute for return Route
@@ -50,11 +51,11 @@ func (r *Route) DELETE(url string, handler Handler) {
 func (r *Route) PUT(url string, handler Handler) {
 	r.RegisterRouter("PUT", url, handler)
 }
-func (r *Route) Router(url string) *Route {
+func (r *Route) Router(method, url string) *Route {
 	urlList := parseUrl(url)
 	var router *Route
 	router = r
-	router = recursionRouter(router, urlList, r.param)
+	router = recursionRouter(router, urlList, r.param, method)
 	if router != nil && router.isHandle {
 		return router
 	}
@@ -67,7 +68,7 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 		if handler != nil {
 			r.isHandle = true
 			r.method = method
-			r.middlewares = append(r.middlewares, r.handler)
+			r.handlers = append(r.middlewares, r.handler)
 			p := strings.Join(urls, "/")
 			p = r.pattern + "/" + p
 			pattern = append(pattern, p)
@@ -82,7 +83,7 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 	index++
 
 	url := urls[count]
-	tmpUrl := url
+	tmpUrl := url + "-" + method
 	if strings.HasPrefix(url, `:`) {
 		url = url[1:]
 		isColon = true
@@ -108,23 +109,24 @@ func recursionRegisterRouter(r *Route, count int, urls []string, handler Handler
 
 }
 
-func recursionRouter(r *Route, urls []string, param map[string]string) *Route {
-	if r.isAsterisk || r.isHandle || r.index >= len(urls)-1 {
+func recursionRouter(r *Route, urls []string, param map[string]string, method string) *Route {
+	if r.isAsterisk || (r.isHandle && r.index >= len(urls)-1) {
 		return r
 	}
 
 	url := urls[r.index+1]
-	router, ok := r.routes[url]
+	tempUrl := url + "-" + method
+	router, ok := r.routes[tempUrl]
 	if ok {
-		return recursionRouter(router, urls, param)
+		return recursionRouter(router, urls, param, method)
 	}
 	for k, v := range r.routes {
 		if strings.HasPrefix(k, `:`) {
 			param[v.prefix] = url
-			return recursionRouter(v, urls, param)
+			return recursionRouter(v, urls, param, method)
 		}
 		if strings.HasPrefix(k, `*`) {
-			return recursionRouter(v, urls, param)
+			return recursionRouter(v, urls, param, method)
 		}
 	}
 	return nil
@@ -133,8 +135,8 @@ func recursionRouter(r *Route, urls []string, param map[string]string) *Route {
 // Group route
 func (r *Route) Group(prefix string) *Route {
 	prefix = parseUrlExcludeSpecialSymbol(prefix)
-	r.RegisterRouter("", prefix, nil)
-	return r.routes[prefix]
+	r.GET(prefix, nil)
+	return r.routes[prefix+"-"+"GET"]
 }
 
 // UseMiddleware complete

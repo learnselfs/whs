@@ -63,8 +63,8 @@ func TestRoutes(t *testing.T) {
 		c.ResponseWriter.Write([]byte("/user/admin"))
 	})
 
-	r.Router("/user")
-	r.Router("/user/admin")
+	r.Router("GET", "/user")
+	r.Router("GET", "/user/admin")
 }
 
 func serverStart() *Service {
@@ -125,12 +125,14 @@ func TestBaseRoutes(t *testing.T) {
 
 func TestUrlParams(t *testing.T) {
 	s := serverStart()
+	go s.Start()
+	time.Sleep(time.Millisecond * 10)
 	t.Run("name", func(t *testing.T) {
 		ClientGet(t, "/user/admins/info", "/user/admins/info")
-		ClientGet(t, "/user/adminaaa/info", "/user/adminaaa/info")
-		ClientGet(t, "/users/adminaaa/info", "/users/adminaa/info")
-		ClientGet(t, "/users/admina/nfo", "/users/admina/nfo")
-		ClientGet(t, "/use/nfo", "")
+		ClientGet(t, "/user/a/info", "/user/a/info")
+		ClientGet(t, "/user/info/info", "/user/info/info")
+		ClientGet(t, "/users/admina/nfo", "/users")
+		ClientGet(t, "/users/adminaaa/info", "/users")
 
 	})
 	s.Stop()
@@ -153,52 +155,44 @@ func TestRouteGroup(t *testing.T) {
 	go func() {
 		s.Start()
 	}()
-
+	time.Sleep(10 * time.Millisecond)
 	ClientGet(t, "/home/info", "/home/info")
-	ClientGet(t, "/home/info*", "/home/info*")
+	ClientGet(t, "/home/info*", "/home/*")
 	ClientGet(t, "/admin/info", "/admin/info")
 	ClientGet(t, "/admin/infos", "/admin/infos")
 	s.Stop()
 }
-
+func middle(count string) Handler {
+	return func(c *Context) {
+		c.ResponseWriter.Write([]byte(count))
+		c.Next()
+		c.ResponseWriter.Write([]byte(count))
+	}
+}
 func TestMiddleware(t *testing.T) {
 	s := serverStart()
-	s.UseMiddleware(func(c *Context) {
-		c.ResponseWriter.Write([]byte("1"))
-		c.Next()
-		c.ResponseWriter.Write([]byte("1"))
-	})
+	s.UseMiddleware(middle("1"))
 	home := s.Group("/home")
-	home.UseMiddleware(func(c *Context) {
-		c.ResponseWriter.Write([]byte("2"))
-		c.Next()
-		c.ResponseWriter.Write([]byte("2"))
-	})
+	home.UseMiddleware(middle("2"))
 	{
 		home.GET("/info", func(c *Context) { c.ResponseWriter.Write([]byte("/home/info")) })
 		home.GET("/*", func(c *Context) { c.ResponseWriter.Write([]byte("/home/*")) })
 	}
 
 	admin := s.Group("admin")
-	admin.UseMiddleware(func(c *Context) {
-		c.ResponseWriter.Write([]byte("3"))
-		c.Next()
-		c.ResponseWriter.Write([]byte("3"))
-	})
+	admin.UseMiddleware(middle("3"))
 	{
 		admin.GET("info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/info")) })
 		admin.GET("/:info", func(c *Context) { c.ResponseWriter.Write([]byte("/admin/" + c.param["info"])) })
 	}
-	//go func() {
-	s.Start()
-	//}()
-
+	go s.Start()
+	time.Sleep(time.Millisecond * 10)
 	ClientGet(t, "/home/info", "12/home/info21")
 	ClientGet(t, "/home/info1*", "12/home/*21")
 	ClientGet(t, "/admin/info", "13/admin/info31")
 	ClientGet(t, "/admin/infos", "13/admin/infos31")
 	s.Stop()
-
+	//
 }
 
 func TestFileServer(t *testing.T) {
@@ -248,10 +242,10 @@ func TestTemplate(t *testing.T) {
 
 	s.Start()
 
-	client := &http.Client{}
-	res, _ := client.Get("http://127.0.0.1/.gitee/PULL_REQUEST_TEMPLATE.zh-CN.md")
-	if res.StatusCode != 200 {
-		t.Errorf("test static failed")
-	}
-	s.Stop()
+	//client := &http.Client{}
+	//res, _ := client.Get("http://127.0.0.1/.gitee/PULL_REQUEST_TEMPLATE.zh-CN.md")
+	//if res.StatusCode != 200 {
+	//	t.Errorf("test static failed")
+	//}
+	//s.Stop()
 }

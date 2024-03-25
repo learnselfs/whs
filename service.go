@@ -26,13 +26,12 @@ type Service struct {
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := NewContent(r, w)
 	c.template = s.template // http template
-	route := s.Router(c.RequestURI)
-	c.middlewares = route.middlewares
-	c.param = s.Route.param // route parameters
-	c.template = s.template
-	// logger
+	route := s.Router(r.Method, c.RequestURI)
 
-	if len(c.middlewares) > 0 && c.Request.Method == route.method {
+	if route != nil && len(route.handlers) > 0 && c.Request.Method == route.method {
+		c.middlewares = route.handlers
+		c.param = s.Route.param // route parameters
+		c.template = s.template
 		c.Next()
 	} else {
 		NotFoundHandler(c)
